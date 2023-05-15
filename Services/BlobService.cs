@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -25,7 +21,7 @@ namespace LinkedInClone.Services
         public BlobService(BlobServiceClient blobServiceClient)
         {
             _blobServiceClient = blobServiceClient;
-            _client = _blobServiceClient.GetBlobContainerClient("blob-storage");
+            _client = _blobServiceClient.GetBlobContainerClient("blob-container");
         }
 
         public void DeleteBlob(string name)

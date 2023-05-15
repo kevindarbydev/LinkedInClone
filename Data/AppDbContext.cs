@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LinkedInClone.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -19,7 +15,6 @@ namespace LinkedInClone.Data
             _options = options;
         }
 
-        //  public DbSet<IdentityUser> AspNetUsers { get; set; }
 
         public DbSet<ApplicationUser> AppUsers { get; set; }
 
@@ -41,8 +36,7 @@ namespace LinkedInClone.Data
 
         public DbSet<JobApplication> JobApplications { get; set; }
 
-        //  UserManager<IdentityUser> _userManager;
-        // RoleManager<IdentityRole> _roleManager;
+        RoleManager<IdentityRole> _roleManager;
 
         // created user defined function in SQL database that will use SOUNDEX functionality
         [DbFunction(Name = "udfSoundex")]
@@ -57,7 +51,11 @@ namespace LinkedInClone.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
             base.OnModelCreating(modelBuilder);
+
+
             // modelBuilder.Entity<ApplicationUser>().ToTable("AppUsers"); //<--- this will rename/recreate default user table 
 
 
@@ -67,10 +65,10 @@ namespace LinkedInClone.Data
 
             //AppUser
 
-            modelBuilder.Entity<ApplicationUser>()
-           .HasDiscriminator<string>("Discriminator")
-           .HasValue<RecruiterUser>("RecruiterUser")
-           .HasValue<ApplicationUser>("ApplicationUser");
+            // modelBuilder.Entity<ApplicationUser>()
+            // .HasDiscriminator<string>("Discriminator")
+            //.HasValue<RecruiterUser>("RecruiterUser")
+            // .HasValue<ApplicationUser>("ApplicationUser");
 
             // modelBuilder.Entity<ApplicationUser>()
             //    .HasMany(u => u.SentConnections)

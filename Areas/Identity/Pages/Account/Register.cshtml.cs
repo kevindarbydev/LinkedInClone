@@ -2,23 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using LinkedInClone.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
 namespace LinkedInClone.Areas.Identity.Pages.Account
 {
@@ -29,16 +18,16 @@ namespace LinkedInClone.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-       // private readonly IEmailSender _emailSender;
+        // private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
 
- 
+
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            
+
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
@@ -86,7 +75,7 @@ namespace LinkedInClone.Areas.Identity.Pages.Account
 
 
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 4)]            
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 4)]
             [Display(Name = "Full Name")]
             [RegularExpression(@"^[a-zA-Z]*\s{1}[a-zA-Z]+$", ErrorMessage = "Full name should be your first name and last name, separated by a single space.")]// should match if input is two words separated with 1 space (ex. John Doe)
             public string FullName { get; set; }
@@ -129,7 +118,7 @@ namespace LinkedInClone.Areas.Identity.Pages.Account
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
-
+                CreateRolesandUsers().Wait();
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "User");
@@ -188,6 +177,52 @@ namespace LinkedInClone.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<ApplicationUser>)_userStore;
+        }
+
+        private async Task CreateRolesandUsers()
+        {
+            bool x = await _roleManager.RoleExistsAsync("Admin");
+            if (!x)
+            {
+                // first we create Admin rool    
+                var role = new IdentityRole();
+                role.Name = "Admin";
+                await _roleManager.CreateAsync(role);
+
+                //Here we create a Admin super user who will maintain the website                   
+
+                var user = new ApplicationUser();
+                user.UserName = "kevindarbydev@gmail.com";
+                user.Email = "kevindarbydev@gmail.com";
+
+                string userPWD = "GoodPW123!";
+
+                IdentityResult chkUser = await _userManager.CreateAsync(user, userPWD);
+
+                //Add default User to Role Admin    
+                if (chkUser.Succeeded)
+                {
+                    var result1 = await _userManager.AddToRoleAsync(user, "Admin");
+                }
+            }
+
+            // creating Creating User role     
+            x = await _roleManager.RoleExistsAsync("User");
+            if (!x)
+            {
+                var role = new IdentityRole();
+                role.Name = "User";
+                await _roleManager.CreateAsync(role);
+            }
+
+            // creating Creating Recruiter role     
+            x = await _roleManager.RoleExistsAsync("Recruiter");
+            if (!x)
+            {
+                var role = new IdentityRole();
+                role.Name = "Recruiter";
+                await _roleManager.CreateAsync(role);
+            }
         }
     }
 }

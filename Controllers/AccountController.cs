@@ -1,10 +1,9 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using LinkedInClone.Data;
 using LinkedInClone.Models;
 using Microsoft.AspNetCore.Authorization;
-using LinkedInClone.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace LinkedInClone.Controllers;
@@ -25,13 +24,21 @@ public class AccountController : Controller
         _roleManager = roleManager;
         _signInManager = signInManager;
         _userManager = userManager;
+        try
+        {
+            CreateRolesandUsers().Wait();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
 
     [AllowAnonymous]
     [Route("/Account/GoogleLogin")]
     public IActionResult GoogleLogin()
-    {        
+    {
         string redirectUrl = Url.Action("GoogleResponse", "Account");
         var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
         return new ChallengeResult("Google", properties);
@@ -129,7 +136,7 @@ public class AccountController : Controller
         user.Email = Request.Form["Email"];
         user.UserName = Request.Form["Email"];
         Debug.WriteLine($"user after update {user.Email} , {user.FullName}");
-       
+
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
@@ -137,8 +144,54 @@ public class AccountController : Controller
             return RedirectToAction("MyAccount", "Home");
         }
         else
-        {           
+        {
             return View("Error");
+        }
+    }
+
+    private async Task CreateRolesandUsers()
+    {
+        bool x = await _roleManager.RoleExistsAsync("Admin");
+        if (!x)
+        {
+            // first we create Admin rool    
+            var role = new IdentityRole();
+            role.Name = "Admin";
+            await _roleManager.CreateAsync(role);
+
+            //Here we create a Admin super user who will maintain the website                   
+
+            var user = new ApplicationUser();
+            user.UserName = "kevindarbydev@gmail.com";
+            user.Email = "kevindarbydev@gmail.com";
+
+            string userPWD = "GoodPW123!";
+
+            IdentityResult chkUser = await _userManager.CreateAsync(user, userPWD);
+
+            //Add default User to Role Admin    
+            if (chkUser.Succeeded)
+            {
+                var result1 = await _userManager.AddToRoleAsync(user, "Admin");
+            }
+        }
+
+        // creating Creating User role     
+        x = await _roleManager.RoleExistsAsync("User");
+        if (!x)
+        {
+            var role = new IdentityRole();
+            role.Name = "User";
+            await _roleManager.CreateAsync(role);
+        }
+
+        // creating Creating Recruiter role     
+        x = await _roleManager.RoleExistsAsync("Recruiter");
+        if (!x)
+        {
+            var role = new IdentityRole();
+            role.Name = "Recruiter";
+            await _roleManager.CreateAsync(role);
         }
     }
 
