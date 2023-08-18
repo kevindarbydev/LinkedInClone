@@ -14,6 +14,8 @@ using LinkedInClone;
 using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 var connectionString = builder.Configuration.GetConnectionString("AppDbContext") ?? throw new InvalidOperationException("Connection string 'AppDbContext' not found.");
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
@@ -25,7 +27,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
     .AddDefaultUI();
 
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 
 builder.Services.ConfigureApplicationCookie(options =>
    {
