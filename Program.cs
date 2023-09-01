@@ -35,10 +35,8 @@ builder.Services.ConfigureApplicationCookie(options =>
        options.AccessDeniedPath = "/Home/AccessDenied";
        // options.SlidingExpiration = true;`
    });
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
 // Services needed to store blobs
 var blobConnection = builder.Configuration.GetConnectionString("BlobConnectionString");
 
