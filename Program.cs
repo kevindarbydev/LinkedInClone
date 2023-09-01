@@ -26,15 +26,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
-
-
-
 builder.Services.ConfigureApplicationCookie(options =>
    {
        // Cookie settings
        // options.Cookie.HttpOnly = true;
        // options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
        // options.LoginPath = "/Account/Login";
        options.AccessDeniedPath = "/Home/AccessDenied";
        // options.SlidingExpiration = true;`
